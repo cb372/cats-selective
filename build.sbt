@@ -2,8 +2,6 @@ val catsVersion = "1.6.0"
 
 val commonSettings = Seq(
   organization := "org.typelevel",
-  scalaVersion := "2.12.8",
-  // TODO crossScalaVersions
   scalacOptions ++= Seq(
     "-language:higherKinds"
   ),

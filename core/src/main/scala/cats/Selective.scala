@@ -13,7 +13,7 @@ trait Selective[F[_]] {
 
   def branch[A, B, C](x: F[Either[A, B]])(l: F[A => C])(r: F[B => C]): F[C] = {
     val lhs = {
-      val innerLhs: F[Either[A, Either[B, C]]] = map(x)(_.map(Left(_)))
+      val innerLhs: F[Either[A, Either[B, C]]] = map(x)(_.right.map(Left(_)))
       val innerRhs: F[A => Either[B, C]] = map(l)(_.andThen(Right(_)))
       select(innerLhs)(innerRhs)
     }
