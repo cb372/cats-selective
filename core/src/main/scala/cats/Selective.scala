@@ -20,8 +20,12 @@ trait Selective[F[_]] {
     select(lhs)(r)
   }
 
-  def ifS[A](x: F[Boolean])(t: F[A])(e: F[A]): F[A] =
-    branch(map(x)(p => if (p) Left(()) else Right(())))(map(t)(a => (_: Unit) => a))(map(e)(a => _ => a))
+  def ifS[A](x: F[Boolean])(t: F[A])(e: F[A]): F[A] = {
+    val condition: F[Either[Unit, Unit]] = map(x)(p => if (p) Left(()) else Right(()))
+    val left: F[Unit => A] = map(t)(Function.const)
+    val right: F[Unit => A] = map(e)(Function.const)
+    branch(condition)(left)(right)
+  }
 
   // TODO more combinators here
 
