@@ -10,13 +10,12 @@ trait SelectiveLaws[F[_]] {
 
   private def either[A, B, C](f: A => C, g: B => C)(x: Either[A, B]): C =
     x match {
-      case Left(a) => f(a)
+      case Left(a)  => f(a)
       case Right(b) => g(b)
     }
 
-  def selectiveIdentity[A](x: F[Either[A, A]]): IsEq[F[A]] = {
+  def selectiveIdentity[A](x: F[Either[A, A]]): IsEq[F[A]] =
     F.select(x)(F.pure(Predef.identity)) <-> F.map(x)(either(Predef.identity, Predef.identity))
-  }
 
   def selectiveDistributivity[A, B](x: Either[A, B], y: F[A => B], z: F[A => B]): IsEq[F[B]] = {
     val lhs = F.select(F.pure(x))(F.applicative.*>(y)(z))

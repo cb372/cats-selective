@@ -1,7 +1,7 @@
 package cats
 
 // TODO simulacrum bug? @typeclass doesn't work
-trait Selective[F[_]]  {
+trait Selective[F[_]] {
 
   def applicative: Applicative[F]
 
@@ -27,7 +27,6 @@ trait Selective[F[_]]  {
 
 }
 
-
 object Selective {
 
   def fromMonad[F[_]](implicit M: Monad[F]): Selective[F] =
@@ -36,9 +35,8 @@ object Selective {
       def select[A, B](fa: F[Either[A, B]])(fn: F[A => B]): F[B] =
         M.flatMap(fa) {
           case Right(b) => M.pure(b)
-          case Left(a) => M.map(fn)(_(a))
+          case Left(a)  => M.map(fn)(_(a))
         }
     }
 
 }
-
