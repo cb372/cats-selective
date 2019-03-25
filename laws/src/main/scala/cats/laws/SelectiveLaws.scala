@@ -1,6 +1,7 @@
 package cats.laws
 
 import cats.Selective
+import cats.syntax.either._
 
 /**
  * Laws that must be obeyed by any `Selective`.
@@ -8,11 +9,7 @@ import cats.Selective
 trait SelectiveLaws[F[_]] {
   implicit def F: Selective[F]
 
-  private def either[A, B, C](f: A => C, g: B => C)(x: Either[A, B]): C =
-    x match {
-      case Left(a)  => f(a)
-      case Right(b) => g(b)
-    }
+  private def either[A, B, C](f: A => C, g: B => C)(x: Either[A, B]): C = x.bimap(f, g).merge
 
   def selectiveIdentity[A](x: F[Either[A, A]]): IsEq[F[A]] =
     F.select(x)(F.pure(Predef.identity)) <-> F.map(x)(either(Predef.identity, Predef.identity))
