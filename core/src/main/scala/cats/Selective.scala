@@ -33,6 +33,8 @@ trait Selective[F[_]] {
 
 object Selective {
 
+  def apply[F[_]](implicit ev: Selective[F]): Selective[F] = ev
+
   def fromMonad[F[_]](implicit M: Monad[F]): Selective[F] =
     new Selective[F] {
       val applicative: Applicative[F] = M
@@ -42,5 +44,17 @@ object Selective {
           case Left(a)  => M.map(fn)(_(a))
         }
     }
+
+  object ops {
+
+    implicit class SelectiveOps[F[_], A, B](target: F[Either[A, B]])(implicit F: Selective[F]) {
+
+      def select(fn: F[A => B]): F[B] = F.select(target)(fn)
+
+      def <*?(fn: F[A => B]): F[B] = F.select(target)(fn)
+
+    }
+
+  }
 
 }
