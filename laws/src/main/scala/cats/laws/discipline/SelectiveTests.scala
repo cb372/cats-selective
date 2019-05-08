@@ -10,29 +10,22 @@ import org.typelevel.discipline.Laws
 trait SelectiveTests[F[_]] extends Laws {
   def laws: SelectiveLaws[F]
 
-  // TODO remove unneeded implicits
   def selective[A: Arbitrary, B: Arbitrary, C: Arbitrary](
     implicit
-    ArbFA: Arbitrary[F[A]],
-    ArbFB: Arbitrary[F[B]],
-    ArbFC: Arbitrary[F[C]],
     ArbFEitherA: Arbitrary[F[Either[A, A]]],
+    ArbFEitherAB: Arbitrary[F[Either[A, B]]],
+    ArbFEitherCAtoB: Arbitrary[F[Either[C, A => B]]],
     ArbFAtoB: Arbitrary[F[A => B]],
-    ArbFBtoC: Arbitrary[F[B => C]],
-    CogenA: Cogen[A],
-    CogenB: Cogen[B],
-    CogenC: Cogen[C],
+    ArbFCtoAtoB: Arbitrary[F[C => A => B]],
     EqFA: Eq[F[A]],
-    EqFB: Eq[F[B]],
-    EqFC: Eq[F[C]],
-    EqFABC: Eq[F[(A, B, C)]],
-    iso: Isomorphisms[F]
+    EqFB: Eq[F[B]]
   ): RuleSet =
     new DefaultRuleSet(
       name = "selective",
       parent = None,
       "selective identity" -> forAll(laws.selectiveIdentity[A] _),
-      "selective distributivity" -> forAll(laws.selectiveDistributivity[A, B] _)
+      "selective distributivity" -> forAll(laws.selectiveDistributivity[A, B] _),
+      "selective associativity" -> forAll(laws.selectiveAssociativity[A, B, C] _)
     )
 }
 
