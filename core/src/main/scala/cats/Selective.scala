@@ -41,7 +41,7 @@ trait Selective[F[_]] {
           Left.apply(())
         )(Right.apply)
       )
-    )(Functor[F].map(fa)(a => _ => a))
+    )(Functor[F].map(fa)(a => Function.const(a)))
 
   def orS(fbool: F[Boolean])(fa: F[Boolean]): F[Boolean] =
     ifS(fbool)(true.pure[F])(fa)
@@ -68,8 +68,6 @@ trait Selective[F[_]] {
 }
 
 object Selective {
-  def apply[F[_]: Selective]: Selective[F] = implicitly
-
   def apply[F[_]](implicit ev: Selective[F]): Selective[F] = ev
 
   def fromMonad[F[_]](implicit M: Monad[F]): Selective[F] =

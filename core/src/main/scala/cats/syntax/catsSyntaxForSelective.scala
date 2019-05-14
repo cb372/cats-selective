@@ -2,7 +2,7 @@ package cats.syntax
 
 import cats.Selective
 
-class catsSyntaxForSelectiveEither[F[_]: Selective, A, B](fa: F[Either[A, B]]) {
+class catsStdSyntaxForSelectiveEither[F[_]: Selective, A, B](fa: F[Either[A, B]]) {
   def select(ff: F[A => B]): F[B] =
     Selective[F].select(fa)(ff)
 
@@ -13,7 +13,7 @@ class catsSyntaxForSelectiveEither[F[_]: Selective, A, B](fa: F[Either[A, B]]) {
     Selective[F].select(fa)(ff)
 }
 
-class catsStdSyntaxForSelectiveEither[F[_]: Selective, A, B](ff: F[A => B]) {
+class catsStdSyntaxForSelectiveFunction1[F[_]: Selective, A, B](ff: F[A => B]) {
   def ?*>(fab: F[Either[A, B]]): F[B] =
     Selective[F].select(fab)(ff)
 }
