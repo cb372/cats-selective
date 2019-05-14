@@ -29,7 +29,6 @@ object FreeSelective {
     def apply[F[_], A](x: A): Pure[F, A] = new Pure[F, A] {
       val run: A = x
     }
-    def unapply[F[_], A](arg: Pure[F, A]): Option[A] = Option(arg.run)
     type Aux[F[_], A, B] = Pure[F, A] {
       type Source = B
     }
