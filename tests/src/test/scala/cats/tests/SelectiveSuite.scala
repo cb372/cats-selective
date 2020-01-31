@@ -65,53 +65,61 @@ class SelectiveSuite extends CatsSuite {
   }
 
   test("orS") {
-    forAll { (x: Option[Boolean], t: Option[Int], e: Option[Int]) =>
-      x match {
-        case None =>
-          testInstance.ifS(x)(t)(e) should ===(None)
-        case Some(true) =>
-          testInstance.ifS(x)(t)(e) should ===(t)
-        case Some(false) =>
-          testInstance.ifS(x)(t)(e) should ===(e)
+    forAll { (x: Option[Boolean], t: Option[Boolean]) =>
+      (x, t) match {
+        case (None, _) =>
+          testInstance.orS(x)(t) should ===(None)
+        case (Some(true), _) =>
+          testInstance.orS(x)(t) should ===(Option(true))
+        case (Some(false), None) =>
+          testInstance.orS(x)(t) should ===(None)
+        case (Some(false), Some(true)) =>
+          testInstance.orS(x)(t) should ===(Option(true))
+        case (Some(false), Some(false)) =>
+          testInstance.orS(x)(t) should ===(Option(false))
       }
     }
   }
 
   test("andS") {
-    forAll { (x: Option[Boolean], t: Option[Int], e: Option[Int]) =>
-      x match {
-        case None =>
-          testInstance.ifS(x)(t)(e) should ===(None)
-        case Some(true) =>
-          testInstance.ifS(x)(t)(e) should ===(t)
-        case Some(false) =>
-          testInstance.ifS(x)(t)(e) should ===(e)
+    forAll { (x: Option[Boolean], t: Option[Boolean]) =>
+      (x, t) match {
+        case (None, _) =>
+          testInstance.orS(x)(t) should ===(None)
+        case (Some(false), None) =>
+          testInstance.orS(x)(t) should ===(None)
+        case (Some(false), Some(true)) =>
+          testInstance.orS(x)(t) should ===(Option(true))
+        case (Some(false), Some(false)) =>
+          testInstance.orS(x)(t) should ===(Option(false))
+        case (Some(true), None) =>
+          testInstance.orS(x)(t) should ===(Option(true))
+        case (Some(true), Some(true)) =>
+          testInstance.orS(x)(t) should ===(Option(true))
+        case (Some(true), Some(false)) =>
+          testInstance.orS(x)(t) should ===(Option(true))
       }
     }
   }
 
   test("anyS") {
-    forAll { (x: Option[Boolean], t: Option[Int], e: Option[Int]) =>
-      x match {
-        case None =>
-          testInstance.ifS(x)(t)(e) should ===(None)
-        case Some(true) =>
-          testInstance.ifS(x)(t)(e) should ===(t)
-        case Some(false) =>
-          testInstance.ifS(x)(t)(e) should ===(e)
+    forAll { (x: List[Boolean]) =>
+      if (x.isEmpty)
+        testInstance.anyS(Some.apply[Boolean])(x).value should ===(testInstance.pure(false))
+      else {
+        testInstance.anyS(Some.apply[Boolean])(x).value should ===(testInstance.pure(x.exists(identity)))
+        testInstance.anyS((_: Boolean) => None)(x).value should ===(None)
       }
     }
   }
 
   test("allS") {
-    forAll { (x: Option[Boolean], t: Option[Int], e: Option[Int]) =>
-      x match {
-        case None =>
-          testInstance.ifS(x)(t)(e) should ===(None)
-        case Some(true) =>
-          testInstance.ifS(x)(t)(e) should ===(t)
-        case Some(false) =>
-          testInstance.ifS(x)(t)(e) should ===(e)
+    forAll { (x: List[Boolean]) =>
+      if (x.isEmpty)
+        testInstance.allS(Some.apply[Boolean])(x).value should ===(testInstance.pure(true))
+      else {
+        testInstance.allS(Some.apply[Boolean])(x).value should ===(testInstance.pure(x.forall(identity)))
+        testInstance.allS((_: Boolean) => None)(x).value should ===(None)
       }
     }
   }
