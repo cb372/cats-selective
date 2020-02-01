@@ -33,14 +33,12 @@ class SelectiveSuite extends CatsSuite {
   }
 
   test("bindBool") {
-    forAll { (x: Option[Boolean], t: Option[Int], e: Option[Int]) =>
+    forAll { (x: Option[Boolean], t: Option[Int]) =>
       x match {
+        case Some(_) =>
+          testInstance.bindBool(x)(_ => t) should ===(t)
         case None =>
-          testInstance.ifS(x)(t)(e) should ===(None)
-        case Some(true) =>
-          testInstance.ifS(x)(t)(e) should ===(t)
-        case Some(false) =>
-          testInstance.ifS(x)(t)(e) should ===(e)
+          testInstance.bindBool(x)(_ => t) should ===(None)
       }
     }
   }
