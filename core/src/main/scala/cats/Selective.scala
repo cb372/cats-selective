@@ -34,7 +34,7 @@ trait Selective[F[_]] {
 
   def fromMaybeS[A](fa: F[A])(fm: F[Option[A]]): F[A] =
     select(
-      applicative.map(fm)(_.toRight(left = ()))
+      applicative.map(fm)(e => e.toRight(left = ()))
     )(applicative.map(fa)(a => Function.const(a)))
 
   def orS(fbool: F[Boolean])(fa: F[Boolean]): F[Boolean] =
