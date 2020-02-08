@@ -2,7 +2,6 @@ package cats
 
 // TODO simulacrum bug? @typeclass doesn't work
 trait Selective[F[_]] {
-
   def applicative: Applicative[F]
 
   def select[A, B](fab: F[Either[A, B]])(fn: F[A => B]): F[B]
@@ -27,12 +26,39 @@ trait Selective[F[_]] {
     branch(condition)(left)(right)
   }
 
-  // TODO more combinators here
+  def whenS[A](fbool: F[Boolean])(fa: F[Unit]): F[Unit] =
+    ifS(fbool)(fa)(pure(()))
 
+  def bindBool[A](fbool: F[Boolean])(f: Boolean => F[A]): F[A] =
+    ifS(fbool)(f(false))(f(true))
+
+  def fromMaybeS[A](fa: F[A])(fm: F[Option[A]]): F[A] =
+    select(
+      applicative.map[Option[A], Either[Unit, A]](fm)(_.toRight(left = ()))
+    )(applicative.map(fa)(a => Function.const(a)))
+
+  def orS(fbool: F[Boolean])(fa: F[Boolean]): F[Boolean] =
+    ifS(fbool)(pure(true))(fa)
+
+  def andS(fbool: F[Boolean])(fa: F[Boolean]): F[Boolean] =
+    ifS(fbool)(fa)(pure(false))
+
+  def anyS[G[_]: Foldable, A](test: A => F[Boolean])(ga: G[A]): Eval[F[Boolean]] =
+    Foldable[G].foldRight(ga, Eval.now(pure(false)))({
+      (a: A, lb: Eval[F[Boolean]]) =>
+        lb.map(orS(_)(test(a)))
+    })
+
+  def allS[G[_]: Foldable, A](test: A => F[Boolean])(ga: G[A]): Eval[F[Boolean]] =
+    Foldable[G].foldRight(ga, Eval.now(pure(true)))({
+      (a: A, lb: Eval[F[Boolean]]) =>
+        lb.map(andS(_)(test(a)))
+    })
+
+  // TODO more combinators here
 }
 
 object Selective {
-
   def apply[F[_]](implicit ev: Selective[F]): Selective[F] = ev
 
   def fromMonad[F[_]](implicit M: Monad[F]): Selective[F] =
