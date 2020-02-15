@@ -51,7 +51,7 @@ object FreeRigidSelective {
       override def map[A, B](fa: FreeRigidSelective[F, A])(f: A => B): FreeRigidSelective[F, B] =
         fa match {
           case x: Pure[F, A] => Pure(f(x.run))
-          case w: Select.Aux[F, _, A] =>
+          case w: Select[F, A] =>
             new Select[F, B] {
               type Source = w.Source
               /**
