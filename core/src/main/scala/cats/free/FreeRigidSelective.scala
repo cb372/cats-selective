@@ -127,7 +127,7 @@ object FreeRigidSelective {
     new Select[F, A] {
       type Source = Unit
 
-      val feab: FreeRigidSelective[F, Either[Unit, A]] = Pure(Left())
+      val feab: FreeRigidSelective[F, Either[Unit, A]] = Pure(Left(()))
       val fab: F[Unit => A] = Functor[F].map(fa)(Function.const)
     }
 
