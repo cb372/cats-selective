@@ -3,7 +3,8 @@ val catsVersion = "2.1.0"
 val commonSettings = Seq(
   organization := "org.typelevel",
   scalacOptions ++= Seq(
-    "-language:higherKinds"
+    "-language:higherKinds",
+    "-deprecation"
   ),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full),
   libraryDependencies ++= Seq(
