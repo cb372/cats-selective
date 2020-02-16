@@ -46,22 +46,23 @@ object FreeRigidSelective {
   }
 
   implicit def selective[F[_]: Functor]: Selective[FreeRigidSelective[F, ?]] = new Selective[FreeRigidSelective[F, ?]] {
+
     override def applicative: Applicative[FreeRigidSelective[F, ?]] = new Applicative[FreeRigidSelective[F, ?]] {
       override def map[A, B](fa: FreeRigidSelective[F, A])(f: A => B): FreeRigidSelective[F, B] =
         fa match {
           case x: Pure[F, A] => Pure(f(x.run))
-          case w: Select.Aux[F, A, B] =>
+          case w: Select[F, A] =>
             new Select[F, B] {
-              type Source = B
+              type Source = w.Source
               /**
                 *There is a bit of primitive recursion here that cannot be eliminated.
                 * Since all free selective expressions are finite, this is guaranteed to terminate,
                 * however it is not tail recursive, so your stack is your own.
                 **/
-              val feab: FreeRigidSelective[F, Either[Source, B]] =
-                map(w.feab)((e: Either[w.Source, B]) => e.leftMap(f))
+              val feab: FreeRigidSelective[F, Either[w.Source, B]] =
+                map(w.feab)(e => e.map(f))
 
-              val fab: F[Source => B] = Functor[F].map(w.fab)(f andThen _)
+              val fab: F[Source => B] = Functor[F].map(w.fab)(_ andThen f)
             }
         }
 
