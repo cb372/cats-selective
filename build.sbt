@@ -1,15 +1,14 @@
-val catsVersion = "1.6.0"
+val catsVersion = "2.1.0"
 
 val commonSettings = Seq(
   organization := "org.typelevel",
   scalacOptions ++= Seq(
     "-language:higherKinds"
   ),
-  addCompilerPlugin(("org.spire-math" % "kind-projector" % "0.9.9").cross(CrossVersion.binary)),
-  addCompilerPlugin(("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full),
   libraryDependencies ++= Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
-    "com.github.mpilquist" %% "simulacrum" % "0.15.0"
+    "com.github.mpilquist" %% "simulacrum" % "0.19.0"
   )
 )
 
@@ -31,6 +30,6 @@ val tests = project
   .settings(commonSettings)
   .settings(
     libraryDependencies +=
-      "org.typelevel" %% "cats-testkit" % catsVersion % Test
+      "org.typelevel" %% "cats-testkit-scalatest" % "1.0.0-RC1" % Test
   )
   .dependsOn(core, laws)
