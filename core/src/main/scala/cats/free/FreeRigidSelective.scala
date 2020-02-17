@@ -94,23 +94,23 @@ object FreeRigidSelective {
         case fn: Pure[F, A => B] =>
           map(fab)(_.fold(fn.run, identity))
 
-        case fn: Select.Aux[F, A, A => B] =>
-          val fx: FreeRigidSelective[F, Either[A, Either[(A, A), B]]]  =
-            map(fab)(e => Right(e.leftMap(a => (a, a))))
+        case fn: Select[F, A => B] =>
+          val fx: FreeRigidSelective[F, Either[A, Either[(fn.Source, A), B]]] =
+            map(fab)(e => e.map(Right(_)))
 
-          val gy: FreeRigidSelective[F, A => Either[(A, A), B]] =
+          val gy: FreeRigidSelective[F, A => Either[(fn.Source, A), B]] =
             map(fn.feab)(
-              (eit: Either[A, A => B]) =>
+              (eit: Either[fn.Source, A => B]) =>
                 (a: A) =>
                   Bifunctor[Either].bimap(eit)((_, a), f => f(a)))
 
-          val hz: F[((A, A)) => B] =
+          val hz: F[((fn.Source, A)) => B] =
             Functor[F].map(fn.fab)(
-              Function.uncurried[A, A, B] _
-                andThen Function.tupled[A, A, B])
+              Function.uncurried[fn.Source, A, B] _
+                andThen Function.tupled[fn.Source, A, B])
 
           new Select[F, B] {
-            type Source = (A, A)
+            type Source = (fn.Source, A)
 
             val fab: F[Source => B] = hz
             val feab: FreeRigidSelective[F, Either[Source, B]] = select(fx)(gy)
@@ -134,7 +134,7 @@ object FreeRigidSelective {
   def runSelect[F[_], G[_]: Selective, A, B](nat: F ~> G)(free: FreeRigidSelective[F, A]): G[A] =
     free match {
       case x: Pure[F, A] => Selective[G].pure(x.run)
-      case x: Select.Aux[F, A, B] =>
+      case x: Select[F, A] =>
         Selective[G].select(runSelect(nat)(x.feab))(nat(x.fab))
     }
 
