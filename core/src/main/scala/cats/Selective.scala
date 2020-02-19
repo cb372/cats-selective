@@ -19,6 +19,22 @@ trait Selective[F[_]] {
     select(lhs)(r)
   }
 
+  /**
+    * apS :: Selective f => f (a -> b) -> f a -> f b
+    * apS f x = select (Left <$> f) ((&) <$> x)
+    *
+    *  (&) :: c -> (c -> d) -> d     -- reverse function application
+    *
+    * Although the type signature of `apS` matches `applicative.ap`, in general,
+    * they are *not* equivalent.  Selective functors that *do* satisfy the
+    * property `applicative.ap === apS` are called *rigid* selectives.
+    */
+  def apS[A, B](fn: F[A => B])(fa: F[A]): F[B] = {
+    val leftFn: F[Either[A => B, B]] = map(fn)(Left(_))
+    val application = map(fa)(a => (g: A => B) => g(a))
+    select(leftFn)(application)
+  }
+
   def ifS[A](x: F[Boolean])(t: F[A])(e: F[A]): F[A] = {
     val condition: F[Either[Unit, Unit]] = map(x)(p => if (p) Left(()) else Right(()))
     val left: F[Unit => A] = map(t)(Function.const)
