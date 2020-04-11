@@ -12,4 +12,7 @@ class ValidatedSuite extends CatsSuite {
 
   checkAll("Validated[String, Int]", SelectiveTests[Validated[String, ?]].selective[Int, Int, Int])
 
+  // This fails, as expected, because Validated[E,?] is no a *rigid* selective functor
+  // Useful for checking that the rigid laws fail when they are expected to!
+  // checkAll("Validated[String, Int]", RigidSelectiveTests[Validated[String, ?]].selective[Int, Int])
 }

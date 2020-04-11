@@ -121,4 +121,16 @@ class SelectiveSuite extends CatsSuite {
       }
     }
   }
+
+  test("apS") {
+    forAll { (fn: Option[Int => String], fa: Option[Int]) =>
+      fn match {
+        case None =>
+          testInstance.apS(fn)(fa) should ===(None)
+        case Some(f) =>
+          testInstance.apS(fn)(fa) should ===(fa.map(f))
+      }
+    }
+  }
+
 }
