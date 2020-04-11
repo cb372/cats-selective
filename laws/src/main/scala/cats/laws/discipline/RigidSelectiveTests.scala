@@ -2,24 +2,18 @@ package cats
 package laws
 package discipline
 
-import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import org.scalacheck.Prop._
-import org.scalacheck.{Arbitrary, Cogen}
+import org.scalacheck.Arbitrary
 import org.typelevel.discipline.Laws
 
 trait RigidSelectiveTests[F[_]] extends Laws {
   def laws: RigidSelectiveLaws[F]
 
-  // TODO - probably don't need all these implicit args.  Tidy up
-  def selective[A: Arbitrary, B: Arbitrary, C: Arbitrary](
+  def selective[A: Arbitrary, B: Arbitrary](
     implicit
     ArbFA: Arbitrary[F[A]],
-    ArbFEitherA: Arbitrary[F[Either[A, A]]],
     ArbFEitherAB: Arbitrary[F[Either[A, B]]],
-    ArbFEitherCAtoB: Arbitrary[F[Either[C, A => B]]],
     ArbFAtoB: Arbitrary[F[A => B]],
-    ArbFCtoAtoB: Arbitrary[F[C => A => B]],
-    EqFA: Eq[F[A]],
     EqFB: Eq[F[B]]
   ): RuleSet =
     new DefaultRuleSet(

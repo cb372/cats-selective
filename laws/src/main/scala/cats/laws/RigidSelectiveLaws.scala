@@ -13,7 +13,7 @@ trait RigidSelectiveLaws[F[_]] {
 
   /**
     * Selectives that satisfy this criteria are known as rigid selectives.
-    * 
+    *
     * `applicative.ap === apS`
     */
   def rigidSelectiveApply[A, B](x: F[A], fn: F[A => B]): IsEq[F[B]] = {
@@ -23,8 +23,7 @@ trait RigidSelectiveLaws[F[_]] {
   }
 
   /**
-    * A consequence of `applicative.ap === apS` and associativity, so don't strictly
-    * need to test this law, but I'm writing it as a sanity check
+    * A consequence of `applicative.ap === apS` and associativity
     *
     * `x *> (y <*? z) === (x *> y) <*? z
     */
